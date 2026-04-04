@@ -1,8 +1,8 @@
 export type Todo = {
   id: string
-  name: string
-  description: string
-  status: boolean
+  title: string
+  description?: string
+  completed: boolean
 }
 
 export type TodoBody = Omit<Todo, 'id'>

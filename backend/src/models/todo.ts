@@ -4,7 +4,7 @@ import { Todo } from '../types/todo'
 
 const todoSchema: mongoose.Schema = new mongoose.Schema(
   {
-    name: {
+    title: {
       type: String,
       required: true
     },
@@ -12,7 +12,7 @@ const todoSchema: mongoose.Schema = new mongoose.Schema(
       type: String,
       default: ''
     },
-    status: {
+    completed: {
       type: Boolean,
       required: true
     }

@@ -1,16 +1,10 @@
-export interface ITodo {
-  id: string
-  name: string
-  description: string
-  status: boolean
-  createdAt?: string
-  updatedAt?: string
-}
-
-export interface TodoProps {
-  todo: ITodo
+export type Todo = {
+    id: string;
+    title: string;
+    description?: string;
+    completed: boolean;
 }
 
 export type TodoResponse = {
-  todos: Array<ITodo>
+  todos: Todo[]
 }

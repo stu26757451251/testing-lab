@@ -1,14 +1,18 @@
 import { FastifyInstance, RouteShorthandOptions } from 'fastify'
 
-import { addTodo, deleteTodo, getTodos, updateTodoStatus } from '../services/todo'
+import { addTodo, deleteTodo, getTodos, updateTodoCompleted, editTodoDetails } from '../services/todo'
 import { TodoBody } from '../types/todo'
 
 export const TodoRouter = (server: FastifyInstance, opts: RouteShorthandOptions, done: (error?: Error) => void) => {
   interface IdParam {
     id: string
   }
-  interface StatusBody {
-    status: boolean
+  interface CompletedBody {
+    completed: boolean
+  }
+  interface EditBody {
+    title: string
+    description: string
   }
 
   server.get('/v1/todos', async (request, reply) => {
@@ -32,11 +36,11 @@ export const TodoRouter = (server: FastifyInstance, opts: RouteShorthandOptions,
     }
   })
 
-  server.put<{ Params: IdParam; Body: StatusBody }>('/v1/todos/:id', opts, async (request, reply) => {
+  server.put<{ Params: IdParam; Body: CompletedBody }>('/v1/todos/:id', opts, async (request, reply) => {
     try {
       const id = request.params.id
-      const status = request.body.status
-      const todo = await updateTodoStatus(id, status)
+      const completed = request.body.completed
+      const todo = await updateTodoCompleted(id, completed)
       if (todo) {
         return reply.status(200).send({ todo })
       } else {
@@ -59,6 +63,22 @@ export const TodoRouter = (server: FastifyInstance, opts: RouteShorthandOptions,
       }
     } catch (error) {
       server.log.error(`DELETE /v1/todos/${request.params.id} Error: ${error}`)
+      return reply.status(500).send(`[Server Error]: ${error}`)
+    }
+  })
+
+  server.patch<{ Params: IdParam; Body: EditBody }>('/v1/todos/:id', opts, async (request, reply) => {
+    try {
+      const id = request.params.id
+      const { title, description } = request.body
+      const todo = await editTodoDetails(id, title, description)
+      if (todo) {
+        return reply.status(200).send({ todo })
+      } else {
+        return reply.status(404).send({ msg: `Not Found Todo:${id}` })
+      }
+    } catch (error) {
+      server.log.error(`PATCH /v1/todos/${request.params.id} Error: ${error}`)
       return reply.status(500).send(`[Server Error]: ${error}`)
     }
   })

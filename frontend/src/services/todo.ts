@@ -1,46 +1,59 @@
-import axios, { AxiosResponse } from 'axios'
-import { ITodo, TodoResponse } from '../types/todo'
+import axios from 'axios'
+import { Todo } from '../types/todo'
 
-export const getTodos = async (): Promise<AxiosResponse<TodoResponse>> => {
+export const getTodos = async (): Promise<Todo[]> => {
   try {
-    const res = await axios.get<TodoResponse>(`/api/v1/todos`)
-    return Promise.resolve(res)
+    const res = await axios.get(`/api/v1/todos`)
+    return res.data.todos
   } catch (error) {
-    return Promise.reject(`GET /todos ERROR: ${error}`)
+    console.error(`GET /todos ERROR: ${error}`)
+    throw new Error(`${error}`)
   }
 }
 
-export const addTodo = async (todoBody: ITodo): Promise<AxiosResponse<ITodo>> => {
+export const addTodo = async (title: string, description?: string): Promise<Todo> => {
   try {
     const newTodo = {
-      ...todoBody,
-      status: false
+      title,
+      description,
+      completed: false
     }
-    const todo = await axios.post(`/api/v1/todos`, newTodo)
-    return todo
+    const res = await axios.post(`/api/v1/todos`, newTodo)
+    return res.data.todo
   } catch (error) {
     console.error(`POST /api/v1/todos ERROR: ${error}`)
     throw new Error(`${error}`)
   }
 }
 
-export const updateTodo = async (todoBody: ITodo): Promise<AxiosResponse<ITodo>> => {
+export const toggleTodoStatus = async (id: string, completed: boolean): Promise<Todo> => {
   try {
     const payload = {
-      status: true
+      completed
     }
-    const todo = await axios.put(`/api/v1/todos/${todoBody.id}`, payload)
-    return todo
+    const res = await axios.put(`/api/v1/todos/${id}`, payload)
+    return res.data.todo
   } catch (error) {
-    console.error(`PUT /api/v1/todos/${todoBody.id} ERROR: ${error}`)
+    console.error(`PUT /api/v1/todos/${id} ERROR: ${error}`)
     throw new Error(`${error}`)
   }
 }
 
-export const deleteTodo = async (id: string): Promise<AxiosResponse> => {
+export const editTodo = async (id: string, title: string, description: string): Promise<Todo> => {
   try {
-    const res = await axios.delete(`/api/v1/todos/${id}`)
-    return res
+    const payload = { title, description }
+    const res = await axios.patch(`/api/v1/todos/${id}`, payload)
+    return res.data.todo
+  } catch (error) {
+    console.error(`PATCH /api/v1/todos/${id} ERROR: ${error}`)
+    throw new Error(`${error}`)
+  }
+}
+
+export const deleteTodo = async (id: string): Promise<void> => {
+  try {
+    await axios.delete(`/api/v1/todos/${id}`)
+    return
   } catch (error) {
     console.error(`DELETE /api/v1/todos/${id} ERROR: ${error}`)
     throw new Error(`${error}`)

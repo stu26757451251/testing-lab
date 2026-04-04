@@ -15,8 +15,13 @@ export const addTodo: (todoBody: TodoBody) => Promise<Todo> = async (todoBody) =
   return newTodo
 }
 
-export const updateTodoStatus: (id: string, newStatus: boolean) => Promise<Todo | null> = async (id, newStatus) => {
-  const todo = await repo.updateTodoById(id, { status: newStatus })
+export const editTodoDetails: (id: string, title: string, description: string) => Promise<Todo | null> = async (id, title, description) => {
+  const todo = await repo.updateTodoById(id, { title, description })
+  return todo
+}
+
+export const updateTodoCompleted: (id: string, newCompleted: boolean) => Promise<Todo | null> = async (id, newCompleted) => {
+  const todo = await repo.updateTodoById(id, { completed: newCompleted })
   return todo
 }
 export const deleteTodo: (id: string) => Promise<ModifyResult<Todo>> = async (id) => {

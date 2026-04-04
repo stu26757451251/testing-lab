@@ -1,56 +1,58 @@
-import React, { useEffect, useState } from 'react'
-import TodoItem from './components/TodoItem'
-import AddTodo from './components/AddTodo'
-import { getTodos, addTodo, updateTodo, deleteTodo } from './services/todo'
-import { ITodo } from './types/todo'
-import './App.css'
+import { useState, useEffect } from 'react';
+import { Todo } from './types/todo';
+import { Header } from './components/Header';
+import { TodoInput } from './components/TodoInput';
+import { TodoList } from './components/TodoList';
+import { getTodos, deleteTodo, addTodo, editTodo, toggleTodoStatus } from './services/todo';
 
-const App = () => {
-  const [todos, setTodos] = useState<ITodo[]>([])
+
+export default function App() {
+  const [todos, setTodos] = useState<Todo[]>([]);
 
   useEffect(() => {
-    fetchTodos()
-  }, [])
+    fetchTodos();
+  }, []);
 
-  const fetchTodos = async () => {
-    try {
-      const {
-        data: { todos }
-      } = await getTodos()
-      setTodos(todos)
-    } catch (error) {
-      console.log(`fetch todos error: ${error}`)
-    }
+  const activeTodosCount = todos.filter(todo => !todo.completed).length;
+
+  const toggleTodo = (id: string, completed: boolean) => {
+    toggleTodoStatus(id, !completed)
+      .then(() => fetchTodos())
+  };
+
+  const fetchTodos = () => {
+    getTodos()
+      .then((res) => setTodos(res))
   }
 
-  const handleSaveTodo = (e: React.FormEvent, formData: ITodo): void => {
-    e.preventDefault()
-    addTodo(formData)
+
+  const handleEditTodo = (id: string, title: string, description: string) => {
+    editTodo(id, title, description)
       .then(() => fetchTodos())
-      .catch((err) => console.error(err))
   }
 
-  const handleUpdateTodo = (todo: ITodo): void => {
-    updateTodo(todo)
+  const handleAddTodo = (title: string, description: string) => {
+    addTodo(title, description)
       .then(() => fetchTodos())
-      .catch((err) => console.error(err))
   }
 
   const handleDeleteTodo = (id: string): void => {
     deleteTodo(id)
       .then(() => fetchTodos())
-      .catch((err) => console.log(err))
   }
 
   return (
-    <main className="App">
-      <h1>My Todos</h1>
-      <AddTodo saveTodo={handleSaveTodo} />
-      {todos.map((todo: ITodo) => (
-        <TodoItem key={todo.id} updateTodo={handleUpdateTodo} deleteTodo={handleDeleteTodo} todo={todo} />
-      ))}
-    </main>
-  )
+    <div className="min-h-screen selection:bg-primary-container selection:text-on-primary-container">
+      <main className="max-w-3xl mx-auto px-6 py-20 space-y-12">
+        <Header activeTodosCount={activeTodosCount} />
+        <TodoInput onAddTodo={handleAddTodo} />
+        <TodoList
+          todos={todos}
+          onToggle={toggleTodo}
+          onDelete={handleDeleteTodo}
+          onEdit={handleEditTodo}
+        />
+      </main>
+    </div>
+  );
 }
-
-export default App
