@@ -5,4 +5,4 @@ export type Todo = {
   completed: boolean
 }
 
-export type TodoBody = Omit<Todo, 'id'>
+export type TodoBody = Omit<Todo, 'id' | 'completed'> & { completed?: boolean }

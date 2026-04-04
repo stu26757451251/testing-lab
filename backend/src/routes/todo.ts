@@ -21,7 +21,7 @@ export const TodoRouter = (server: FastifyInstance, opts: RouteShorthandOptions,
       return reply.status(200).send({ todos })
     } catch (error) {
       server.log.error(`GET /v1/todos Error: ${error}`)
-      return reply.status(500).send(`[Server Error]: ${error}`)
+      return reply.status(500).send(`Internal Server Error`)
     }
   })
 
@@ -32,11 +32,14 @@ export const TodoRouter = (server: FastifyInstance, opts: RouteShorthandOptions,
       return reply.status(201).send({ todo })
     } catch (error) {
       server.log.error(`POST /v1/todos Error: ${error}`)
-      return reply.status(500).send(`[Server Error]: ${error}`)
+      if (error instanceof Error && error.message === 'Invalid todo object') {
+        return reply.status(400).send(`Invalid todo object`)
+      }
+      return reply.status(500).send(`Internal Server Error`)
     }
   })
 
-  server.put<{ Params: IdParam; Body: CompletedBody }>('/v1/todos/:id', opts, async (request, reply) => {
+  server.put<{ Params: IdParam; Body: CompletedBody }>('/v1/todos/:id/completed', opts, async (request, reply) => {
     try {
       const id = request.params.id
       const completed = request.body.completed
@@ -47,23 +50,8 @@ export const TodoRouter = (server: FastifyInstance, opts: RouteShorthandOptions,
         return reply.status(404).send({ msg: `Not Found Todo:${id}` })
       }
     } catch (error) {
-      server.log.error(`PUT /v1/todos/${request.params.id} Error: ${error}`)
-      return reply.status(500).send(`[Server Error]: ${error}`)
-    }
-  })
-
-  server.delete<{ Params: IdParam }>('/v1/todos/:id', opts, async (request, reply) => {
-    try {
-      const id = request.params.id
-      const todo = await deleteTodo(id)
-      if (todo) {
-        return reply.status(204).send()
-      } else {
-        return reply.status(404).send({ msg: `Not Found Todo:${id}` })
-      }
-    } catch (error) {
-      server.log.error(`DELETE /v1/todos/${request.params.id} Error: ${error}`)
-      return reply.status(500).send(`[Server Error]: ${error}`)
+      server.log.error(`PUT /v1/todos/${request.params.id}/completed Error: ${error}`)
+      return reply.status(500).send(`Internal Server Error`)
     }
   })
 
@@ -79,9 +67,25 @@ export const TodoRouter = (server: FastifyInstance, opts: RouteShorthandOptions,
       }
     } catch (error) {
       server.log.error(`PATCH /v1/todos/${request.params.id} Error: ${error}`)
-      return reply.status(500).send(`[Server Error]: ${error}`)
+      return reply.status(500).send(`Internal Server Error`)
     }
   })
+
+  server.delete<{ Params: IdParam }>('/v1/todos/:id', opts, async (request, reply) => {
+    try {
+      const id = request.params.id
+      const todo = await deleteTodo(id)
+      if (todo) {
+        return reply.status(204).send()
+      } else {
+        return reply.status(404).send({ msg: `Not Found Todo:${id}` })
+      }
+    } catch (error) {
+      server.log.error(`DELETE /v1/todos/${request.params.id} Error: ${error}`)
+      return reply.status(500).send(`Internal Server Error`)
+    }
+  })
+
 
   done()
 }

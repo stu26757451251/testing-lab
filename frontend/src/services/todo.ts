@@ -15,8 +15,7 @@ export const addTodo = async (title: string, description?: string): Promise<Todo
   try {
     const newTodo = {
       title,
-      description,
-      completed: false
+      description
     }
     const res = await axios.post(`/api/v1/todos`, newTodo)
     return res.data.todo
@@ -31,10 +30,10 @@ export const toggleTodoStatus = async (id: string, completed: boolean): Promise<
     const payload = {
       completed
     }
-    const res = await axios.put(`/api/v1/todos/${id}`, payload)
+    const res = await axios.put(`/api/v1/todos/${id}/completed`, payload)
     return res.data.todo
   } catch (error) {
-    console.error(`PUT /api/v1/todos/${id} ERROR: ${error}`)
+    console.error(`PUT /api/v1/todos/${id}/completed ERROR: ${error}`)
     throw new Error(`${error}`)
   }
 }
