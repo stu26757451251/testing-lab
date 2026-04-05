@@ -7,7 +7,8 @@
     "test": "vitest run --coverage",
     "build": "tsc",
     "start": "node dist/index.js",
-    "dev": "concurrently --raw \"tsc -w \" \"nodemon dist/index.js\""
+    "dev": "concurrently --raw \"tsc -w \" \"nodemon dist/index.js\"",
+    "format": "prettier --write ."
   },
   "keywords": [],
   "author": "",
@@ -22,6 +23,7 @@
     "concurrently": "^9.1.2",
     "dotenv": "^16.4.7",
     "nodemon": "^3.1.9",
+    "prettier": "3.8.1",
     "typescript": "^5.8.2",
     "vitest": "^4.1.2"
   }
