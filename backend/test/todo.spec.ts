@@ -83,7 +83,6 @@ describe('Todo API Testing', () => {
     // assert: response should be the created todo object
     const result = JSON.parse(response.body)['todo']
     expect(result).toStrictEqual(createdTodo)
-    // expect to be 201
   })
 
   test('Given a invalid todo object, When receive a POST /api/v1/todos request, Then it should response with status code 400', async () => {
